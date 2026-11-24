@@ -16,6 +16,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.persona.siripersonality
         PRODUCT_NAME: Persona
+        PRODUCT_MODULE_NAME: PersonaSiriStudio
         INFOPLIST_KEY_CFBundleDisplayName: Persona
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
