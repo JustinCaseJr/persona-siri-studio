@@ -5,7 +5,7 @@ A native SwiftUI iPhone app that provides selectable AI conversational styles an
 ## Included
 - Personality presets: Professional, Friendly Companion, Witty & Sarcastic, Technical Expert, Calm & Supportive, and optional Unfiltered 18+.
 - Custom personality prompt editor.
-- Multi-turn in-app chat with the most recent 20 turns included as context.
+- Multi-turn in-app chat with up to 40 recent messages (bounded to 24,000 characters) included as context; each new prompt is limited to 8,000 characters.
 - Configurable OpenAI-compatible chat-completions endpoint and model.
 - API key stored in iOS Keychain.
 - Siri App Intent: “Ask Persona” and “Talk to Persona”.
