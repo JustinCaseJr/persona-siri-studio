@@ -22,6 +22,7 @@ enum AIServiceError: LocalizedError {
 
 struct AIService {
     static let maximumPromptCharacters = 8_000
+    static let maximumPersonaPromptCharacters = 4_000
     static let maximumHistoryCharacters = 24_000
     static let maximumHistoryMessages = 40
 
@@ -42,6 +43,10 @@ struct AIService {
             let message: Message
         }
         let choices: [Choice]
+    }
+
+    static func boundedPersonaPrompt(_ prompt: String) -> String {
+        String(prompt.prefix(maximumPersonaPromptCharacters))
     }
 
     // Keep the newest conversation context within a predictable request-size budget.
@@ -83,7 +88,7 @@ struct AIService {
         let adultEnabled = defaults.bool(forKey: PersonaSettings.adultEnabled)
         let chosenPersona = persona.isAdult && !adultEnabled ? Persona.presets[1] : persona
         let safeHistory = boundedHistory(history)
-        let messages = [Message(role: "system", content: chosenPersona.systemPrompt)]
+        let messages = [Message(role: "system", content: boundedPersonaPrompt(chosenPersona.systemPrompt))]
             + safeHistory
             + [Message(role: "user", content: trimmedPrompt)]
         let body = RequestBody(model: model, messages: messages, temperature: 0.8)
