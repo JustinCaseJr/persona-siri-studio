@@ -264,9 +264,7 @@ struct ContentView: View {
     private func saveProviderSettings() {
         let trimmedEndpoint = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let components = URLComponents(string: trimmedEndpoint),
-              components.scheme?.lowercased() == "https",
-              components.host != nil,
+        guard AIService.isValidEndpoint(trimmedEndpoint),
               !trimmedModel.isEmpty else {
             settingsMessage = "Enter a valid HTTPS endpoint and model name."
             return
@@ -291,11 +289,13 @@ struct ContentView: View {
         errorText = ""
         prompt = ""
         transcript.append(AIService.Message(role: "user", content: outgoing))
+        transcript = AIService.boundedHistory(transcript)
         defer { busy = false }
         do {
             let previousMessages = Array(transcript.dropLast())
             let response = try await AIService.reply(to: outgoing, persona: activePersona, history: previousMessages)
             transcript.append(AIService.Message(role: "assistant", content: response))
+            transcript = AIService.boundedHistory(transcript)
             if voiceEnabled { synthesizer.speak(AVSpeechUtterance(string: response)) }
         } catch {
             transcript.removeLast()
