@@ -35,6 +35,27 @@ final class PersonaModelTests: XCTestCase {
     }
 
 
+    func testProviderEndpointRequiresHTTPSAndRejectsEmbeddedCredentialsOrFragment() {
+        XCTAssertTrue(AIService.isValidEndpoint("https://api.example.com/v1/chat/completions"))
+        XCTAssertTrue(AIService.isValidEndpoint("https://api.example.com:8443/v1/chat?version=1"))
+        XCTAssertFalse(AIService.isValidEndpoint("http://api.example.com/v1/chat"))
+        XCTAssertFalse(AIService.isValidEndpoint("https://user:secret@api.example.com/v1/chat"))
+        XCTAssertFalse(AIService.isValidEndpoint("https://user@api.example.com/v1/chat"))
+        XCTAssertFalse(AIService.isValidEndpoint("https://api.example.com/v1/chat#token"))
+        XCTAssertFalse(AIService.isValidEndpoint("not a URL"))
+    }
+
+    func testTranscriptIsBoundedForInMemoryDisplay() {
+        let transcript = (0..<60).map { index in
+            AIService.Message(role: index.isMultiple(of: 2) ? "user" : "assistant",
+                              content: String(repeating: "m", count: 1_000))
+        }
+        let bounded = AIService.boundedHistory(transcript)
+        XCTAssertLessThanOrEqual(bounded.count, AIService.maximumHistoryMessages)
+        XCTAssertLessThanOrEqual(bounded.reduce(0) { $0 + $1.content.count }, AIService.maximumHistoryCharacters)
+        XCTAssertEqual(bounded.last?.content.count, 1_000)
+    }
+
     func testPersonaInstructionsAreBoundedBeforeProviderRequest() {
         let oversized = String(repeating: "p", count: AIService.maximumPersonaPromptCharacters + 500)
         let bounded = AIService.boundedPersonaPrompt(oversized)
