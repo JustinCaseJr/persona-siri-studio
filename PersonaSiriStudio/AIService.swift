@@ -60,7 +60,7 @@ struct AIService {
 
         let adultEnabled = defaults.bool(forKey: PersonaSettings.adultEnabled)
         let chosenPersona = persona.isAdult && !adultEnabled ? Persona.presets[1] : persona
-        let safeHistory = Array(history.suffix(20))
+        let safeHistory = Array(history.suffix(40))
             .filter { $0.role == "user" || $0.role == "assistant" }
         let messages = [Message(role: "system", content: chosenPersona.systemPrompt)]
             + safeHistory
