@@ -13,10 +13,14 @@ struct AskPersonaIntent: AppIntent {
         Summary("Ask Persona \(\.$question)")
     }
 
+    static func isPersonaEnabled(_ persona: Persona, adultEnabled: Bool) -> Bool {
+        !persona.isAdult || adultEnabled
+    }
+
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let persona = PersonaSettings.selectedPersona
         let adultEnabled = UserDefaults.standard.bool(forKey: PersonaSettings.adultEnabled)
-        guard !persona.isAdult || adultEnabled else {
+        guard Self.isPersonaEnabled(persona, adultEnabled: adultEnabled) else {
             return .result(dialog: "The Unfiltered 18+ personality is disabled. Enable it in Persona settings first.")
         }
         do {
