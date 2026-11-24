@@ -51,7 +51,7 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     if transcript.isEmpty {
                         ContentUnavailableView("Start a conversation", systemImage: "bubble.left.and.bubble.right",
-                                               description: Text("Your conversation stays on this device while the app is open."))
+                                               description: Text("Your transcript is kept in app memory. Messages and recent context are sent to the AI provider you configure when you ask Persona."))
                             .frame(maxHeight: .infinity)
                     } else {
                         ScrollViewReader { proxy in
