@@ -11,8 +11,9 @@ struct ContentView: View {
     @State private var apiKey = KeychainStore.read() ?? ""
     @State private var voiceEnabled = UserDefaults.standard.bool(forKey: PersonaSettings.voiceEnabled)
     @State private var prompt = ""
-    @State private var answer = ""
+    @State private var transcript: [AIService.Message] = []
     @State private var errorText = ""
+    @State private var settingsMessage = ""
     @State private var busy = false
     @State private var showAdultConfirm = false
     private let synthesizer = AVSpeechSynthesizer()
@@ -47,46 +48,63 @@ struct ContentView: View {
             .tabItem { Label("Personality", systemImage: "person.crop.circle") }
 
             NavigationStack {
-                Form {
-                    Section("Try your assistant") {
-                        TextField("Ask anything…", text: $prompt, axis: .vertical)
-                            .lineLimit(2...5)
-                        Button {
-                            Task { await sendPrompt() }
-                        } label: {
-                            if busy { ProgressView() } else { Label("Send to Persona", systemImage: "paperplane.fill") }
-                        }
-                        .disabled(prompt.trimmingCharacters(in: .whitespaces).isEmpty || busy)
-                        if !answer.isEmpty {
-                            Text(answer).textSelection(.enabled)
-                            Button("Speak response") {
-                                synthesizer.speak(AVSpeechUtterance(string: answer))
+                VStack(spacing: 0) {
+                    if transcript.isEmpty {
+                        ContentUnavailableView("Start a conversation", systemImage: "bubble.left.and.bubble.right",
+                                               description: Text("Your conversation stays on this device while the app is open."))
+                            .frame(maxHeight: .infinity)
+                    } else {
+                        ScrollViewReader { proxy in
+                            ScrollView {
+                                LazyVStack(alignment: .leading, spacing: 14) {
+                                    ForEach(Array(transcript.enumerated()), id: \.offset) { index, message in
+                                        messageBubble(message)
+                                            .id(index)
+                                    }
+                                }
+                                .padding()
+                            }
+                            .onChange(of: transcript.count) { _, count in
+                                withAnimation { proxy.scrollTo(count - 1, anchor: .bottom) }
                             }
                         }
-                        if !errorText.isEmpty { Text(errorText).foregroundStyle(.red) }
                     }
-                    Section("Current personality") {
-                        Label(activePersona.name, systemImage: activePersona.symbol)
+                    if !errorText.isEmpty {
+                        Text(errorText).font(.footnote).foregroundStyle(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
+                    }
+                    composer
+                }
+                .navigationTitle(activePersona.name)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("New chat", systemImage: "square.and.pencil") { transcript.removeAll(); errorText = "" }
+                            .disabled(transcript.isEmpty || busy)
                     }
                 }
-                .navigationTitle("Conversation")
             }
             .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
 
             NavigationStack {
                 Form {
                     Section("AI provider") {
-                        TextField("Chat completions endpoint", text: $endpoint)
+                        TextField("HTTPS chat-completions endpoint", text: $endpoint)
                             .textInputAutocapitalization(.never)
                             .keyboardType(.URL)
+                            .autocorrectionDisabled()
                         TextField("Model", text: $model)
                             .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                         SecureField("API key", text: $apiKey)
-                        Button("Save provider settings") {
-                            UserDefaults.standard.set(endpoint, forKey: PersonaSettings.endpoint)
-                            UserDefaults.standard.set(model, forKey: PersonaSettings.model)
-                            do { try KeychainStore.save(apiKey); errorText = "" }
-                            catch { errorText = error.localizedDescription }
+                        Button("Save provider settings") { saveProviderSettings() }
+                        Button("Remove saved API key", role: .destructive) {
+                            KeychainStore.delete()
+                            apiKey = ""
+                            settingsMessage = "Saved API key removed from this device."
+                        }
+                        .disabled(KeychainStore.read() == nil)
+                        if !settingsMessage.isEmpty {
+                            Text(settingsMessage).font(.footnote).foregroundStyle(.secondary)
                         }
                     }
                     Section("Adult language") {
@@ -117,7 +135,6 @@ struct ContentView: View {
                         Text("Say “Hey Siri, Ask Persona” and provide your question. You can also add the Ask Persona shortcut in the Shortcuts app.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
-                    if !errorText.isEmpty { Text(errorText).foregroundStyle(.red) }
                 }
                 .navigationTitle("Settings")
                 .confirmationDialog("Enable adult-language mode?", isPresented: $showAdultConfirm) {
@@ -140,6 +157,45 @@ struct ContentView: View {
             Text("Your assistant.\nYour personality.").font(.largeTitle.bold())
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var composer: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            TextField("Message Persona…", text: $prompt, axis: .vertical)
+                .lineLimit(1...5)
+                .textFieldStyle(.roundedBorder)
+            Button {
+                Task { await sendPrompt() }
+            } label: {
+                if busy { ProgressView() } else { Image(systemName: "arrow.up.circle.fill").font(.title) }
+            }
+            .disabled(prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || busy)
+            .accessibilityLabel("Send message")
+        }
+        .padding()
+        .background(.bar)
+    }
+
+    private func messageBubble(_ message: AIService.Message) -> some View {
+        HStack {
+            if message.role == "assistant" { Image(systemName: activePersona.symbol).foregroundStyle(.tint) }
+            if message.role == "user" { Spacer(minLength: 36) }
+            Text(message.content)
+                .textSelection(.enabled)
+                .padding(12)
+                .background(message.role == "user" ? Color.accentColor.opacity(0.16) : Color(.secondarySystemGroupedBackground),
+                            in: RoundedRectangle(cornerRadius: 16))
+            if message.role == "assistant" {
+                Button {
+                    synthesizer.speak(AVSpeechUtterance(string: message.content))
+                } label: {
+                    Image(systemName: "speaker.wave.2")
+                }
+                .accessibilityLabel("Speak response")
+            }
+            if message.role == "assistant" { Spacer(minLength: 24) }
+        }
+        .frame(maxWidth: .infinity, alignment: message.role == "user" ? .trailing : .leading)
     }
 
     private func personaCard(_ persona: Persona) -> some View {
@@ -179,8 +235,11 @@ struct ContentView: View {
             TextEditor(text: $customPrompt).frame(minHeight: 120)
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
             Button("Save custom personality") {
-                UserDefaults.standard.set(customName, forKey: PersonaSettings.customName)
-                UserDefaults.standard.set(customPrompt, forKey: PersonaSettings.customPrompt)
+                let name = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+                let instructions = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.isEmpty, !instructions.isEmpty else { return }
+                UserDefaults.standard.set(name, forKey: PersonaSettings.customName)
+                UserDefaults.standard.set(instructions, forKey: PersonaSettings.customPrompt)
                 select("custom")
             }
             .buttonStyle(.borderedProminent)
@@ -194,16 +253,44 @@ struct ContentView: View {
         UserDefaults.standard.set(id, forKey: PersonaSettings.selectedID)
     }
 
+    private func saveProviderSettings() {
+        let trimmedEndpoint = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let components = URLComponents(string: trimmedEndpoint),
+              components.scheme?.lowercased() == "https",
+              components.host != nil,
+              !trimmedModel.isEmpty else {
+            settingsMessage = "Enter a valid HTTPS endpoint and model name."
+            return
+        }
+        UserDefaults.standard.set(trimmedEndpoint, forKey: PersonaSettings.endpoint)
+        UserDefaults.standard.set(trimmedModel, forKey: PersonaSettings.model)
+        do {
+            let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedKey.isEmpty { try KeychainStore.save(trimmedKey) }
+            settingsMessage = trimmedKey.isEmpty ? "Provider settings saved. Existing API key was unchanged." : "Provider settings and API key saved securely."
+        } catch {
+            settingsMessage = error.localizedDescription
+        }
+    }
+
     @MainActor
     private func sendPrompt() async {
+        let outgoing = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !outgoing.isEmpty, !busy else { return }
         busy = true
         errorText = ""
-        answer = ""
+        prompt = ""
+        transcript.append(AIService.Message(role: "user", content: outgoing))
         defer { busy = false }
         do {
-            answer = try await AIService.reply(to: prompt, persona: activePersona)
-            if voiceEnabled { synthesizer.speak(AVSpeechUtterance(string: answer)) }
+            let previousMessages = Array(transcript.dropLast())
+            let response = try await AIService.reply(to: outgoing, persona: activePersona, history: previousMessages)
+            transcript.append(AIService.Message(role: "assistant", content: response))
+            if voiceEnabled { synthesizer.speak(AVSpeechUtterance(string: response)) }
         } catch {
+            transcript.removeLast()
+            prompt = outgoing
             errorText = error.localizedDescription
         }
     }
