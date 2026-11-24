@@ -11,9 +11,9 @@ enum KeychainStore {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account
         ]
+        // Accessibility is fixed when the item is created; update only its value.
         let update: [String: Any] = [
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            kSecValueData as String: data
         ]
         let updateStatus = SecItemUpdate(query as CFDictionary, update as CFDictionary)
         if updateStatus == errSecItemNotFound {
