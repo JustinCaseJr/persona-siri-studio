@@ -88,7 +88,7 @@ struct ContentView: View {
             NavigationStack {
                 Form {
                     Section("AI provider") {
-                        Text("When you send a chat message or use Ask Persona with Siri, your question and the recent conversation context are sent to the provider at this endpoint. The provider handles that data under its own privacy and retention policies. Avoid entering passwords, payment details, or other sensitive information.")
+                        Text("When you send a chat message, your question and recent in-app conversation context are sent to the provider at this endpoint. When you use Ask Persona with Siri, only that Siri question is sent; Siri requests do not include your in-app chat history. The provider handles submitted data under its own privacy and retention policies. Avoid entering passwords, payment details, or other sensitive information.")
                             .font(.footnote).foregroundStyle(.secondary)
                         TextField("HTTPS chat-completions endpoint", text: $endpoint)
                             .textInputAutocapitalization(.never)
