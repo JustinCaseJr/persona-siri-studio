@@ -43,12 +43,15 @@ enum KeychainStore {
         return String(data: data, encoding: .utf8)
     }
 
-    static func delete(account: String = "provider-api-key") {
+    static func delete(account: String = "provider-api-key") throws {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account
         ]
-        SecItemDelete(query as CFDictionary)
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+        }
     }
 }
