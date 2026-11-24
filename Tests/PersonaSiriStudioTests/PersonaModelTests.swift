@@ -22,7 +22,7 @@ final class PersonaModelTests: XCTestCase {
 
     func testKeychainCanSaveReadReplaceAndDelete() throws {
         let account = "persona-test-\(UUID().uuidString)"
-        defer { KeychainStore.delete(account: account) }
+        defer { try? KeychainStore.delete(account: account) }
 
         try KeychainStore.save("first-test-value", account: account)
         XCTAssertEqual(KeychainStore.read(account: account), "first-test-value")
@@ -30,7 +30,7 @@ final class PersonaModelTests: XCTestCase {
         try KeychainStore.save("replacement-test-value", account: account)
         XCTAssertEqual(KeychainStore.read(account: account), "replacement-test-value")
 
-        KeychainStore.delete(account: account)
+        try KeychainStore.delete(account: account)
         XCTAssertNil(KeychainStore.read(account: account))
     }
 
