@@ -19,6 +19,14 @@ final class PersonaModelTests: XCTestCase {
         XCTAssertEqual(adultPresets.map(\.id), ["unfiltered"])
     }
 
+    func testSiriIntentRequiresAdultAcknowledgementOnlyForAdultPreset() throws {
+        let adultPersona = try XCTUnwrap(Persona.presets.first(where: \.isAdult))
+        let standardPersona = try XCTUnwrap(Persona.presets.first(where: { !$0.isAdult }))
+
+        XCTAssertFalse(AskPersonaIntent.isPersonaEnabled(adultPersona, adultEnabled: false))
+        XCTAssertTrue(AskPersonaIntent.isPersonaEnabled(adultPersona, adultEnabled: true))
+        XCTAssertTrue(AskPersonaIntent.isPersonaEnabled(standardPersona, adultEnabled: false))
+    }
 
     func testKeychainCanSaveReadReplaceAndDelete() throws {
         let account = "persona-test-\(UUID().uuidString)"
@@ -33,7 +41,6 @@ final class PersonaModelTests: XCTestCase {
         try KeychainStore.delete(account: account)
         XCTAssertNil(KeychainStore.read(account: account))
     }
-
 
     func testProviderEndpointRequiresHTTPSAndRejectsEmbeddedCredentialsOrFragment() {
         XCTAssertTrue(AIService.isValidEndpoint("https://api.example.com/v1/chat/completions"))
@@ -82,10 +89,10 @@ final class PersonaModelTests: XCTestCase {
             XCTFail("Expected an overlong prompt to be rejected.")
         } catch let error as AIServiceError {
             guard case .promptTooLong = error else {
-                return XCTFail("Expected promptTooLong, received \\(error).")
+                return XCTFail("Expected promptTooLong, received \(error).")
             }
         } catch {
-            XCTFail("Unexpected error: \\(error)")
+            XCTFail("Unexpected error: \(error)")
         }
     }
 
