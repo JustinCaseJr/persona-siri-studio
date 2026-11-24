@@ -19,8 +19,12 @@ struct AskPersonaIntent: AppIntent {
         guard !persona.isAdult || adultEnabled else {
             return .result(dialog: "The Unfiltered 18+ personality is disabled. Enable it in Persona settings first.")
         }
-        let answer = try await AIService.reply(to: question, persona: persona)
-        return .result(dialog: IntentDialog(stringLiteral: answer))
+        do {
+            let answer = try await AIService.reply(to: question, persona: persona)
+            return .result(dialog: IntentDialog(stringLiteral: answer))
+        } catch {
+            return .result(dialog: IntentDialog(stringLiteral: error.localizedDescription))
+        }
     }
 }
 
