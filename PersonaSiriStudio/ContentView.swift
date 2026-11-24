@@ -88,6 +88,8 @@ struct ContentView: View {
             NavigationStack {
                 Form {
                     Section("AI provider") {
+                        Text("When you send a chat message or use Ask Persona with Siri, your question and the recent conversation context are sent to the provider at this endpoint. The provider handles that data under its own privacy and retention policies. Avoid entering passwords, payment details, or other sensitive information.")
+                            .font(.footnote).foregroundStyle(.secondary)
                         TextField("HTTPS chat-completions endpoint", text: $endpoint)
                             .textInputAutocapitalization(.never)
                             .keyboardType(.URL)
