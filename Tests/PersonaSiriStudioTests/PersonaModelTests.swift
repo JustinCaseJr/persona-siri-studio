@@ -35,6 +35,13 @@ final class PersonaModelTests: XCTestCase {
     }
 
 
+    func testPersonaInstructionsAreBoundedBeforeProviderRequest() {
+        let oversized = String(repeating: "p", count: AIService.maximumPersonaPromptCharacters + 500)
+        let bounded = AIService.boundedPersonaPrompt(oversized)
+        XCTAssertEqual(bounded.count, AIService.maximumPersonaPromptCharacters)
+        XCTAssertEqual(bounded, String(oversized.prefix(AIService.maximumPersonaPromptCharacters)))
+    }
+
     func testHistoryIsLimitedToRecentMessagesAndCharacterBudget() {
         let history = (0..<30).map { index in
             AIService.Message(role: index == 0 ? "system" : (index.isMultiple(of: 2) ? "user" : "assistant"),
