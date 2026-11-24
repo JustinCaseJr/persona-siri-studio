@@ -21,4 +21,4 @@ jobs:
       - name: Build for iOS Simulator
         run: xcodebuild build -project PersonaSiriStudio.xcodeproj -scheme PersonaSiriStudio -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
       - name: Run unit tests
-        run: xcodebuild test -project PersonaSiriStudio.xcodeproj -scheme PersonaSiriStudio -destination 'platform=iOS Simulator,name=iPhone 16' CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild test -project PersonaSiriStudio.xcodeproj -scheme PersonaSiriStudio -destination 'platform=iOS Simulator,name=iPhone 16'
