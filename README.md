@@ -62,7 +62,9 @@ After installing the app, open Shortcuts and look for the Ask Persona action. Si
 
 ## Verification status
 The latest source changes have passed GitHub Actions simulator builds and unit tests:
-- [Transcript bounds and endpoint safeguards](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45487246833)
-- [Provider data-disclosure UI](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45487427980)
+- [Siri integration and regression tests](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45488548488)
+- [Siri safeguard build and tests](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45488542192)
+- [VoiceOver accessibility improvements](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45488754881)
+- [Corrected Siri privacy disclosure](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45488782146)
 
 The CI workflow generated the Xcode project, built for the iOS Simulator, and ran unit tests on macOS/Xcode. These results do **not** mean the app has been signed, installed, or tested on a physical iPhone. Device validation, Apple signing, App Store assets, privacy disclosures, and release review remain outstanding.
