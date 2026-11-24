@@ -34,6 +34,33 @@ final class PersonaModelTests: XCTestCase {
         XCTAssertNil(KeychainStore.read(account: account))
     }
 
+
+    func testHistoryIsLimitedToRecentMessagesAndCharacterBudget() {
+        let history = (0..<30).map { index in
+            AIService.Message(role: index == 0 ? "system" : (index.isMultiple(of: 2) ? "user" : "assistant"),
+                              content: String(repeating: "x", count: 1_000))
+        }
+        let bounded = AIService.boundedHistory(history)
+        XCTAssertLessThanOrEqual(bounded.count, AIService.maximumHistoryMessages)
+        XCTAssertLessThanOrEqual(bounded.reduce(0) { $0 + $1.content.count }, AIService.maximumHistoryCharacters)
+        XCTAssertTrue(bounded.allSatisfy { $0.role == "user" || $0.role == "assistant" })
+        XCTAssertEqual(bounded.last?.content.count, 1_000)
+    }
+
+    func testAIServiceRejectsOverlongPromptBeforeNetworkAccess() async {
+        do {
+            _ = try await AIService.reply(to: String(repeating: "x", count: AIService.maximumPromptCharacters + 1),
+                                          persona: PersonaSettings.selectedPersona)
+            XCTFail("Expected an overlong prompt to be rejected.")
+        } catch let error as AIServiceError {
+            guard case .promptTooLong = error else {
+                return XCTFail("Expected promptTooLong, received \\(error).")
+            }
+        } catch {
+            XCTFail("Unexpected error: \\(error)")
+        }
+    }
+
     func testAIServiceRejectsEmptyPrompt() async {
         do {
             _ = try await AIService.reply(to: " \n ", persona: PersonaSettings.selectedPersona)
