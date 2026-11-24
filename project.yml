@@ -32,3 +32,14 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.persona.siripersonality.tests
         GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  PersonaSiriStudio:
+    build:
+      targets:
+        PersonaSiriStudio: all
+        PersonaSiriStudioTests: [test]
+    test:
+      config: Debug
+      targets:
+        - PersonaSiriStudioTests
