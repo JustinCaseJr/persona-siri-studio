@@ -45,6 +45,19 @@ struct AIService {
         let choices: [Choice]
     }
 
+    static func isValidEndpoint(_ endpoint: String) -> Bool {
+        guard let components = URLComponents(string: endpoint),
+              components.scheme?.lowercased() == "https",
+              let host = components.host, !host.isEmpty,
+              components.user == nil,
+              components.password == nil,
+              components.fragment == nil,
+              components.url != nil else {
+            return false
+        }
+        return true
+    }
+
     static func boundedPersonaPrompt(_ prompt: String) -> String {
         String(prompt.prefix(maximumPersonaPromptCharacters))
     }
@@ -75,10 +88,7 @@ struct AIService {
         let defaults = UserDefaults.standard
         let endpoint = defaults.string(forKey: PersonaSettings.endpoint) ?? "https://api.openai.com/v1/chat/completions"
         let model = defaults.string(forKey: PersonaSettings.model) ?? "gpt-4o-mini"
-        guard let components = URLComponents(string: endpoint),
-              components.scheme?.lowercased() == "https",
-              components.host != nil,
-              let url = components.url else {
+        guard isValidEndpoint(endpoint), let url = URL(string: endpoint) else {
             throw AIServiceError.invalidEndpoint
         }
         guard !model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
