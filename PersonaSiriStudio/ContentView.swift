@@ -187,6 +187,7 @@ struct ContentView: View {
             if message.role == "assistant" { Image(systemName: activePersona.symbol).foregroundStyle(.tint) }
             if message.role == "user" { Spacer(minLength: 36) }
             Text(message.content)
+                .accessibilityLabel("\(message.role == "user" ? "You said" : "Persona replied"): \(message.content)")
                 .textSelection(.enabled)
                 .padding(12)
                 .background(message.role == "user" ? Color.accentColor.opacity(0.16) : Color(.secondarySystemGroupedBackground),
@@ -231,14 +232,21 @@ struct ContentView: View {
                         in: RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(persona.name). \(persona.subtitle)")
+        .accessibilityValue(selectedID == persona.id ? "Selected" : "Not selected")
+        .accessibilityHint("Double-tap to choose this personality.")
     }
 
     private var customEditor: some View {
         VStack(alignment: .leading, spacing: 10) {
             TextField("Personality name", text: $customName)
+                .accessibilityLabel("Custom personality name")
             Text("Describe how Persona should speak and behave. Instructions are limited to 4,000 characters when sent to your provider.")
                 .font(.caption).foregroundStyle(.secondary)
             TextEditor(text: $customPrompt).frame(minHeight: 120)
+                .accessibilityLabel("Custom personality instructions")
+                .accessibilityHint("Describe the assistant's tone, style, and behavior. Maximum 4,000 characters.")
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
             Text("\(customPrompt.count)/4,000 characters")
                 .font(.caption2).foregroundStyle(customPrompt.count > AIService.maximumPersonaPromptCharacters ? .red : .secondary)
