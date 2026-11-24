@@ -56,7 +56,7 @@ struct AIService {
             selected.append(Message(role: message.role, content: content))
             remaining -= content.count
         }
-        return selected.reversed()
+        return Array(selected.reversed())
     }
 
     static func reply(to prompt: String, persona: Persona, history: [Message] = []) async throws -> String {
