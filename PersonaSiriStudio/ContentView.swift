@@ -234,19 +234,23 @@ struct ContentView: View {
     private var customEditor: some View {
         VStack(alignment: .leading, spacing: 10) {
             TextField("Personality name", text: $customName)
-            Text("Describe how Persona should speak and behave.")
+            Text("Describe how Persona should speak and behave. Instructions are limited to 4,000 characters when sent to your provider.")
                 .font(.caption).foregroundStyle(.secondary)
             TextEditor(text: $customPrompt).frame(minHeight: 120)
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
+            Text("\(customPrompt.count)/4,000 characters")
+                .font(.caption2).foregroundStyle(customPrompt.count > AIService.maximumPersonaPromptCharacters ? .red : .secondary)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             Button("Save custom personality") {
                 let name = customName.trimmingCharacters(in: .whitespacesAndNewlines)
                 let instructions = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !name.isEmpty, !instructions.isEmpty else { return }
+                guard !name.isEmpty, !instructions.isEmpty, instructions.count <= AIService.maximumPersonaPromptCharacters else { return }
                 UserDefaults.standard.set(name, forKey: PersonaSettings.customName)
                 UserDefaults.standard.set(instructions, forKey: PersonaSettings.customPrompt)
                 select("custom")
             }
             .buttonStyle(.borderedProminent)
+            .disabled(customPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || customPrompt.count > AIService.maximumPersonaPromptCharacters || customName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
