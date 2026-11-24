@@ -263,14 +263,15 @@ struct ContentView: View {
             settingsMessage = "Enter a valid HTTPS endpoint and model name."
             return
         }
-        UserDefaults.standard.set(trimmedEndpoint, forKey: PersonaSettings.endpoint)
-        UserDefaults.standard.set(trimmedModel, forKey: PersonaSettings.model)
         do {
+            // Save the secret first. If Keychain rejects it, leave the active endpoint/model unchanged.
             let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmedKey.isEmpty { try KeychainStore.save(trimmedKey) }
+            UserDefaults.standard.set(trimmedEndpoint, forKey: PersonaSettings.endpoint)
+            UserDefaults.standard.set(trimmedModel, forKey: PersonaSettings.model)
             settingsMessage = trimmedKey.isEmpty ? "Provider settings saved. Existing API key was unchanged." : "Provider settings and API key saved securely."
         } catch {
-            settingsMessage = error.localizedDescription
+            settingsMessage = "Could not save the API key. Provider settings were not changed. \(error.localizedDescription)"
         }
     }
 
