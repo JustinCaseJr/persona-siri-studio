@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var settingsMessage = ""
     @State private var busy = false
     @State private var showAdultConfirm = false
-    private let synthesizer = AVSpeechSynthesizer()
+    @State private var synthesizer = AVSpeechSynthesizer()
 
     private var activePersona: Persona { PersonaSettings.selectedPersona }
 
@@ -57,9 +57,9 @@ struct ContentView: View {
                         ScrollViewReader { proxy in
                             ScrollView {
                                 LazyVStack(alignment: .leading, spacing: 14) {
-                                    ForEach(Array(transcript.enumerated()), id: \.offset) { index, message in
-                                        messageBubble(message)
-                                            .id(index)
+                                    ForEach(Array(transcript.enumerated()), id: \.offset) { item in
+                                        messageBubble(item.element)
+                                            .id(item.offset)
                                     }
                                 }
                                 .padding()
