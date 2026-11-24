@@ -98,9 +98,13 @@ struct ContentView: View {
                         SecureField("API key", text: $apiKey)
                         Button("Save provider settings") { saveProviderSettings() }
                         Button("Remove saved API key", role: .destructive) {
-                            KeychainStore.delete()
-                            apiKey = ""
-                            settingsMessage = "Saved API key removed from this device."
+                            do {
+                                try KeychainStore.delete()
+                                apiKey = ""
+                                settingsMessage = "Saved API key removed from this device."
+                            } catch {
+                                settingsMessage = "Could not remove the saved API key. \(error.localizedDescription)"
+                            }
                         }
                         .disabled(KeychainStore.read() == nil)
                         if !settingsMessage.isEmpty {
