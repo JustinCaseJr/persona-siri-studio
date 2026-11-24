@@ -6,7 +6,7 @@ enum AIServiceError: LocalizedError {
     case invalidResponse
     case emptyPrompt
     case promptTooLong
-    case http(Int, String)
+    case http(Int)
 
     var errorDescription: String? {
         switch self {
@@ -15,7 +15,7 @@ enum AIServiceError: LocalizedError {
         case .invalidResponse: return "The AI provider returned an unreadable response."
         case .emptyPrompt: return "Enter a message before sending."
         case .promptTooLong: return "Keep each message under 8,000 characters."
-        case .http(let code, let message): return "Provider error \(code): \(message)"
+        case .http(let code): return "The AI provider returned HTTP status \(code). Check the endpoint, model, and API key."
         }
     }
 }
@@ -113,9 +113,9 @@ struct AIService {
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw AIServiceError.invalidResponse }
         guard (200..<300).contains(http.statusCode) else {
-            // Do not surface full provider payloads: they may contain internal details.
-            let detail = String(data: data, encoding: .utf8) ?? "No error details provided."
-            throw AIServiceError.http(http.statusCode, String(detail.prefix(240)))
+            // Provider bodies are untrusted and may contain sensitive diagnostic data.
+            // Report only the status code; never echo response content into the UI or Siri.
+            throw AIServiceError.http(http.statusCode)
         }
         guard let decoded = try? JSONDecoder().decode(ResponseBody.self, from: data),
               let content = decoded.choices.first?.message.content,
