@@ -59,4 +59,4 @@ After installing the app, open Shortcuts and look for the Ask Persona action. Si
 - `.github/workflows/ios-ci.yml` — macOS CI build and test workflow
 
 ## Verification status
-The source and project configuration are committed, but this environment does not provide Xcode or an iOS Simulator. The app has **not yet been compiled, signed, installed, or tested on a physical iPhone**. GitHub Actions is configured to perform an Xcode build and unit tests on pushes and pull requests; check the Actions tab for its first run.
+GitHub Actions successfully generated the Xcode project, built the app for the iOS Simulator, and ran the unit-test suite on macOS/Xcode. The latest verified run is [run 9](https://github.com/JustinCaseJr/persona-siri-studio/actions/runs/45391688712) for commit `12cdcfff301ef3cbd78c1e493076ce594c8a3a7c`. This CI result does **not** mean the app has been signed, installed, or tested on a physical iPhone. Device validation, Apple signing, App Store assets, privacy disclosures, and release review remain outstanding.
