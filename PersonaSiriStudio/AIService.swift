@@ -5,6 +5,7 @@ enum AIServiceError: LocalizedError {
     case invalidEndpoint
     case invalidResponse
     case emptyPrompt
+    case promptTooLong
     case http(Int, String)
 
     var errorDescription: String? {
@@ -13,12 +14,17 @@ enum AIServiceError: LocalizedError {
         case .invalidEndpoint: return "Use a valid HTTPS chat-completions endpoint."
         case .invalidResponse: return "The AI provider returned an unreadable response."
         case .emptyPrompt: return "Enter a message before sending."
+        case .promptTooLong: return "Keep each message under 8,000 characters."
         case .http(let code, let message): return "Provider error \(code): \(message)"
         }
     }
 }
 
 struct AIService {
+    static let maximumPromptCharacters = 8_000
+    static let maximumHistoryCharacters = 24_000
+    static let maximumHistoryMessages = 40
+
     struct Message: Codable, Equatable {
         let role: String
         let content: String
@@ -38,9 +44,25 @@ struct AIService {
         let choices: [Choice]
     }
 
+    // Keep the newest conversation context within a predictable request-size budget.
+    static func boundedHistory(_ history: [Message]) -> [Message] {
+        var remaining = maximumHistoryCharacters
+        var selected: [Message] = []
+        for message in history.suffix(maximumHistoryMessages).reversed() {
+            guard remaining > 0 else { break }
+            guard message.role == "user" || message.role == "assistant" else { continue }
+            let content = String(message.content.suffix(remaining))
+            guard !content.isEmpty else { continue }
+            selected.append(Message(role: message.role, content: content))
+            remaining -= content.count
+        }
+        return selected.reversed()
+    }
+
     static func reply(to prompt: String, persona: Persona, history: [Message] = []) async throws -> String {
         let trimmedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPrompt.isEmpty else { throw AIServiceError.emptyPrompt }
+        guard trimmedPrompt.count <= maximumPromptCharacters else { throw AIServiceError.promptTooLong }
         guard let key = KeychainStore.read(), !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw AIServiceError.missingKey
         }
@@ -60,8 +82,7 @@ struct AIService {
 
         let adultEnabled = defaults.bool(forKey: PersonaSettings.adultEnabled)
         let chosenPersona = persona.isAdult && !adultEnabled ? Persona.presets[1] : persona
-        let safeHistory = Array(history.suffix(40))
-            .filter { $0.role == "user" || $0.role == "assistant" }
+        let safeHistory = boundedHistory(history)
         let messages = [Message(role: "system", content: chosenPersona.systemPrompt)]
             + safeHistory
             + [Message(role: "user", content: trimmedPrompt)]
