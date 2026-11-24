@@ -12,7 +12,7 @@ This checklist tracks work required before a public App Store release. A success
 - [x] Provider data-transfer disclosure
 - [x] Initial VoiceOver labels for personality selection and chat messages
 - [x] GitHub Actions simulator build and unit tests
-- [ ] Privacy manifest lint step passes in CI after this checklist update
+- [x] Privacy manifest lint step passes in CI after this checklist update
 - [ ] Review every VoiceOver screen with VoiceOver enabled
 
 ## Apple developer and device validation
