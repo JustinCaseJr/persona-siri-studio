@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10131d">
+  <meta name="description" content="Persona is a customizable AI chat companion. Choose a personality, create your own, and connect an AI provider.">
+  <title>Persona — Personality Studio</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="Persona home"><span class="brand-mark">P</span><span>persona<span class="brand-dot">.</span></span></a>
+      <p class="eyebrow">YOUR AI, YOUR WAY</p>
+      <nav class="nav-tabs" aria-label="Main navigation">
+        <button class="nav-button active" data-view="studio"><span>✳</span> Personality studio</button>
+        <button class="nav-button" data-view="chat"><span>◌</span> Conversation</button>
+        <button class="nav-button" data-view="settings"><span>⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="provider-status"><span class="status-dot" id="provider-dot"></span><span id="provider-status">Provider not configured</span></div>
+        <p>Private by design. Your settings and chat stay in this browser.</p>
+        <span class="version">PERSONA WEB · 1.0</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="mobile-header"><a class="brand" href="#"><span class="brand-mark">P</span><span>persona<span class="brand-dot">.</span></span></a><button id="mobile-settings" class="icon-button" aria-label="Open settings">⚙</button></header>
+      <section class="view active" id="view-studio">
+        <div class="page-heading"><div><p class="eyebrow">PERSONALITY STUDIO</p><h1>Make it sound like <em>you.</em></h1><p class="subheading">Choose a voice for your assistant, or build one from scratch.</p></div><div class="heading-orb">✳</div></div>
+        <div class="studio-layout">
+          <div class="preset-column"><div class="section-heading"><h2>Explore personalities</h2><span id="preset-count" class="muted">6 styles</span></div><div id="persona-grid" class="persona-grid"></div><button id="new-custom" class="custom-create">＋ Create a custom personality</button></div>
+          <aside class="preview-panel"><div class="preview-top"><span class="live-pill"><i></i> LIVE PREVIEW</span><span class="muted">YOUR SELECTION</span></div><div class="preview-avatar" id="preview-avatar">✳</div><h2 id="preview-name">Friendly Companion</h2><p id="preview-subtitle" class="muted">Warm, approachable and encouraging</p><div class="preview-divider"></div><p class="eyebrow">PERSONALITY IN A NUTSHELL</p><p id="preview-description" class="preview-description"></p><button id="use-persona" class="primary-button">Start a conversation <span>↗</span></button><p class="preview-footnote">Your selection is saved in this browser.</p></aside>
+        </div>
+        <section class="custom-editor hidden" id="custom-editor">
+          <div class="section-heading"><div><p class="eyebrow">MAKE IT YOURS</p><h2>Custom personality</h2></div><button id="close-editor" class="text-button">Close</button></div>
+          <label>Personality name<input id="custom-name" maxlength="60" placeholder="e.g. The Straight Shooter"></label>
+          <label>Instructions<textarea id="custom-prompt" rows="5" maxlength="4000" placeholder="Describe the tone, style, and behavior you want..."></textarea><span class="char-count" id="prompt-count">0 / 4,000</span></label>
+          <div class="editor-actions"><button id="save-custom" class="primary-button">Save personality</button><span id="editor-message" class="muted" role="status"></span></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-chat">
+        <div class="page-heading compact"><div><p class="eyebrow">YOUR CONVERSATION</p><h1>Let's talk<span class="brand-dot">.</span></h1><p class="subheading">Chatting as <strong id="chat-persona-name">Friendly Companion</strong></p></div><button id="clear-chat" class="secondary-button">＋ New chat</button></div>
+        <div class="chat-panel"><div id="messages" class="messages"><div class="welcome-message"><div class="welcome-icon">✳</div><h2>A fresh perspective, every time.</h2><p>Choose a personality and start with whatever is on your mind.</p><button id="choose-persona" class="text-button">Explore personalities →</button></div></div><div id="chat-error" class="chat-error" role="alert"></div><form id="chat-form" class="composer"><textarea id="chat-input" rows="1" maxlength="8000" placeholder="Message Persona..." aria-label="Message Persona"></textarea><button id="send-button" type="submit" class="send-button" aria-label="Send message">↑</button></form><div class="composer-note">Enter to send · Shift + Enter for a new line · AI can make mistakes</div></div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="page-heading compact"><div><p class="eyebrow">PREFERENCES & CONNECTION</p><h1>Settings<span class="brand-dot">.</span></h1><p class="subheading">Connect your AI provider and manage how Persona works.</p></div></div>
+        <div class="settings-layout">
+          <section class="settings-card"><div class="settings-title"><span class="settings-icon">⌘</span><div><h2>AI provider</h2><p class="muted">Connect an OpenAI-compatible chat completions API.</p></div></div>
+            <label>API endpoint<input id="api-endpoint" type="url" autocomplete="url" value="https://api.openai.com/v1/chat/completions"></label>
+            <label>Model<input id="api-model" autocomplete="off" value="gpt-4o-mini" placeholder="gpt-4o-mini"></label>
+            <label>API key<input id="api-key" type="password" autocomplete="new-password" placeholder="Paste your provider API key"><span class="field-hint">The key is stored in this browser's local storage. It is not sent to Persona servers, but anyone with access to this browser profile may be able to retrieve it.</span></label>
+            <div class="settings-actions"><button id="save-settings" class="primary-button">Save connection</button><button id="forget-key" class="text-button danger-text">Forget key</button></div><p id="settings-message" class="form-message" role="status"></p>
+          </section>
+          <section class="settings-card"><div class="settings-title"><span class="settings-icon">◉</span><div><h2>Conversation preferences</h2><p class="muted">Personalize your chat experience.</p></div></div>
+            <label class="toggle-row"><span><strong>Spoken replies</strong><small>Read assistant responses aloud using your browser's speech engine.</small></span><input id="voice-enabled" type="checkbox" class="toggle"></label>
+            <label class="toggle-row"><span><strong>Adult language style (18+)</strong><small>Allows the Unfiltered personality to use profanity and bold humor. This is an acknowledgement, not age verification.</small></span><input id="adult-enabled" type="checkbox" class="toggle"></label>
+          </section>
+          <section class="settings-card privacy-card"><div class="settings-title"><span class="settings-icon">◇</span><div><h2>Privacy & data</h2><p class="muted">Understand where your information goes.</p></div></div><ul><li>Personality preferences and your API key are stored in browser local storage.</li><li>Chat history is kept in memory for the current page session and is not saved to a Persona account.</li><li>When you send a message, your prompt and recent chat context go directly from your browser to the AI provider you configured.</li><li>Persona does not operate an application server or collect analytics in this version.</li><li>Provider terms, data retention, and charges are controlled by your AI provider.</li></ul><p class="warning-note">Do not enter a shared, employer-owned, or high-privilege API key in a public/shared device. Browser storage is not a secure vault.</p></section>
+          <section class="settings-card about-card"><h2>About Persona</h2><p class="muted">A personality layer for AI conversations. Persona is an independent project and is not affiliated with Apple or OpenAI.</p><p class="muted">The web app works alongside Siri; websites cannot replace Siri or change Apple's built-in assistant personality.</p></section>
+        </div>
+      </section>
+      <footer class="site-footer">PERSONA <span>·</span> YOUR VOICE, YOUR RULES <span class="footer-right">A browser-based AI experience</span></footer>
+    </main>
+  </div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
