@@ -7,6 +7,7 @@ Persona is a responsive, browser-based AI personality studio. It works on iPhone
 - Custom personality editor with a 4,000-character instruction limit.
 - Multi-turn chat with bounded recent context (40 messages / 24,000 characters).
 - Configurable OpenAI-compatible Chat Completions endpoint and model.
+- Settings includes a **Test OpenAI connection** action to validate the configured endpoint, model, and key before chatting.
 - Optional browser speech synthesis for spoken replies.
 - Responsive mobile and desktop interface.
 - Preferences and provider key stored locally in the current browser.
@@ -29,7 +30,8 @@ Run tests with `npm test`.
 1. Open Settings.
 2. Enter an HTTPS OpenAI-compatible Chat Completions endpoint.
 3. Enter a model name and your own API key.
-4. Save the connection and start a conversation.
+4. Save the connection and select **Test OpenAI connection** to check it.
+5. Start a conversation after the test succeeds.
 
 Default endpoint: `https://api.openai.com/v1/chat/completions`
 
