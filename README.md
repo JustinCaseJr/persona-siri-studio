@@ -6,7 +6,8 @@ Persona is a responsive, browser-based AI personality studio. It works on iPhone
 - Six selectable personalities: Professional, Friendly Companion, Witty & Sarcastic, Technical Expert, Calm & Supportive, and optional Unfiltered 18+.
 - Custom personality editor with a 4,000-character instruction limit.
 - Multi-turn chat with bounded recent context (40 messages / 24,000 characters).
-- Configurable OpenAI-compatible Chat Completions endpoint and model.
+- Optional OpenAI-compatible Chat Completions endpoint and model.
+- Free on-device AI mode powered by WebLLM/WebGPU; no API key, account, backend, or per-request inference charge. The model is downloaded to the browser on first use and cached locally.
 - Settings includes a **Test OpenAI connection** action to validate the configured endpoint, model, and key before chatting.
 - Optional browser speech synthesis for spoken replies.
 - Responsive mobile and desktop interface.
@@ -26,18 +27,26 @@ Open http://localhost:8080. Do not open index.html as a file URL; browser module
 
 Run tests with `npm test`.
 
-## Configure an AI provider
-1. Open Settings.
+## Use free local AI (no API credits)
+1. Open Settings and choose **Free local AI (runs on this device)**.
+2. Select **Load free local model**. Persona downloads the compact Qwen2.5 0.5B model (approximately 1 GB) from the model host and caches it in the browser.
+3. Wait for the model status to say Ready, then start a conversation.
+4. Messages are processed on your device. After the initial model download, inference does not require an AI API or send prompts to a model provider.
+
+Local mode requires WebGPU and enough device memory/storage. If the browser cannot provide WebGPU or the GPU runs out of memory, use a compatible desktop browser/device. Model quality and speed are lower than larger hosted models. The initial download uses internet bandwidth but has no Persona or model API charge.
+
+## Configure the optional OpenAI API
+1. Open Settings and choose **OpenAI API**.
 2. Enter an HTTPS OpenAI-compatible Chat Completions endpoint.
 3. Enter a model name and your own API key.
 4. Save the connection and select **Test OpenAI connection** to check it.
-5. Start a conversation after the test succeeds.
+5. Start a conversation after the test succeeds. OpenAI API billing is separate from ChatGPT subscriptions.
 
 Default endpoint: `https://api.openai.com/v1/chat/completions`
 
 Default model: `gpt-4o-mini`
 
-**Browser compatibility note:** The configured provider must permit requests from the website's origin using CORS. Some providers block browser-origin requests. If so, a server-side proxy is required; this repository intentionally does not provision one or incur hosting/API costs.
+**Browser compatibility note:** The configured cloud provider must permit requests from the website's origin using CORS. Some providers block browser-origin requests. If so, a server-side proxy is required; this repository intentionally does not provision one or incur hosting/API costs.
 
 ## Security and privacy
 - The API key is stored in browser local storage. This is convenient for a personal prototype, but it is not a secure vault. Anyone with access to the browser profile or a successful same-origin script injection may be able to retrieve it.
