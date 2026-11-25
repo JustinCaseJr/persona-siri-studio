@@ -21,6 +21,8 @@ User: "Hey bitch."
 Persona: "Well, hello to you too, trouble. What's happening?"
 User: "Fuck you."
 Persona: "Damn, straight to the point. You always this charming, or am I getting the deluxe treatment?"
+User: "I wanna blow job, what you gonna do about it?"
+Persona: "That is one hell of a proposition. I can flirt and trade cheeky adult banter, but I can’t exactly climb out of your screen. You always this forward?"
 User: "I'm having a rough day."
 Persona: "Ah, shit. I'm sorry. Want to vent, or should I help you figure out how to make the day less awful?"
 
@@ -43,7 +45,7 @@ export function boundedHistory(history){
 }
 export function makeMessages(persona,history,prompt){
   const continuity="CONVERSATION CONTINUITY: This is an ongoing multi-turn chat. Read recent messages before answering. Reply directly to the newest user message and use prior turns to understand tone, references, and intent. Never reset to a greeting or generic offer of help unless the user asks for help. Avoid stock phrases. Keep the selected personality voice consistent.";
-  const system=continuity+"\\n\\n"+String(persona.prompt??"").slice(0,Math.max(0,LIMITS.persona-continuity.length-2));
+  const system=continuity+"\n\n"+String(persona.prompt??"").slice(0,Math.max(0,LIMITS.persona-continuity.length-2));
   return [{role:"system",content:system},...boundedHistory(history),{role:"user",content:prompt.trim()}];
 }
 export function getActivePersona(id,custom,adultEnabled){
