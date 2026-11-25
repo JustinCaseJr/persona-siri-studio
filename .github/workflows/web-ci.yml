@@ -1,0 +1,22 @@
+name: Web CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run unit tests
+        run: npm test
+      - name: Check browser app files
+        run: |
+          test -s index.html
+          test -s styles.css
+          test -s src/app.js
+          test -s src/core.js
