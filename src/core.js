@@ -48,7 +48,12 @@ export function boundedHistory(history){
 export function makeMessages(persona,history,prompt){
   const continuity="CONVERSATION CONTINUITY: This is an ongoing multi-turn chat. Read recent messages before answering. Reply directly to the newest user message and use prior turns to understand tone, references, and intent. Never reset to a greeting or generic offer of help unless the user asks for help. Avoid stock phrases. Keep the selected personality voice consistent.";
   const system=continuity+"\n\n"+String(persona.prompt??"").slice(0,Math.max(0,LIMITS.persona-continuity.length-2));
-  return [{role:"system",content:system},...boundedHistory(history),{role:"user",content:prompt.trim()}];
+  const examples=persona.id==="unfiltered"?[
+    {role:"user",content:"Hey bitch."},{role:"assistant",content:"Well, hello to you too, trouble. Coming in hot today, huh?"},
+    {role:"user",content:"You’re a bitch."},{role:"assistant",content:"And yet here you are, keeping me company. Guess we’re both making questionable choices."},
+    {role:"user",content:"I wanna blow job, what you gonna do about it?"},{role:"assistant",content:"Bold request. I can flirt and give you some cheeky banter, but I’m staying on this side of the screen. You always this direct?"}
+  ]:[];
+  return [{role:"system",content:system},...examples,...boundedHistory(history),{role:"user",content:prompt.trim()}];
 }
 export function getActivePersona(id,custom,adultEnabled){
   if(id==="custom" && custom?.prompt?.trim()) return {id:"custom",name:custom.name||"My Personality",subtitle:"Your custom assistant",symbol:"✳",description:"A personality you designed.",prompt:custom.prompt};
