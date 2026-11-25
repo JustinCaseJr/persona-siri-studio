@@ -1,4 +1,4 @@
-import {PRESETS,LIMITS,validEndpoint,makeMessages,getActivePersona} from "./core.js?v=unfiltered-1";
+import {PRESETS,LIMITS,validEndpoint,makeMessages,getActivePersona} from "./core.js?v=conversation-2";
 const $=id=>document.getElementById(id);
 const store={get(k,fallback=""){try{return localStorage.getItem("persona:"+k)??fallback}catch{return fallback}},set(k,v){try{localStorage.setItem("persona:"+k,String(v));return true}catch{return false}},remove(k){try{localStorage.removeItem("persona:"+k)}catch{}}};
 const state={selected:store.get("selected","friendly"),providerVerified:false,providerMode:store.get("providerMode","local"),localEngine:null,localLoading:false,adult:store.get("adult")==="true",voice:store.get("voice")==="true",custom:{name:store.get("customName","My Personality"),prompt:store.get("customPrompt","Be helpful, friendly, and concise.")},history:[],busy:false};
