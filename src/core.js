@@ -42,7 +42,8 @@ export function boundedHistory(history){
   return selected.reverse();
 }
 export function makeMessages(persona,history,prompt){
-  const system=String(persona.prompt??"").slice(0,LIMITS.persona);
+  const continuity="CONVERSATION CONTINUITY: This is an ongoing multi-turn chat. Read recent messages before answering. Reply directly to the newest user message and use prior turns to understand tone, references, and intent. Never reset to a greeting or generic offer of help unless the user asks for help. Avoid stock phrases. Keep the selected personality voice consistent.";
+  const system=continuity+"\\n\\n"+String(persona.prompt??"").slice(0,Math.max(0,LIMITS.persona-continuity.length-2));
   return [{role:"system",content:system},...boundedHistory(history),{role:"user",content:prompt.trim()}];
 }
 export function getActivePersona(id,custom,adultEnabled){
