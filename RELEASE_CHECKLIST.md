@@ -1,48 +1,31 @@
-# Persona 1.0 — Release checklist
+# Persona Web — Release checklist
 
-This checklist tracks work required before a public App Store release. A successful simulator build is not equivalent to a signed or device-tested release.
+## Web implementation
+- [x] Responsive browser UI for desktop and mobile
+- [x] Six selectable personality presets
+- [x] Custom personality editor (4,000-character cap)
+- [x] Multi-turn chat and bounded context
+- [x] HTTPS endpoint validation
+- [x] Browser speech synthesis
+- [x] Adult-language acknowledgement gate
+- [x] Provider/privacy disclosures
+- [x] Automated unit tests and web CI workflow
+- [ ] Verify GitHub Actions web workflow passes on the latest commit
+- [ ] Test in Safari on a physical iPhone and desktop browsers
+- [ ] Test provider requests against a real account and verify CORS support
+- [ ] Test storage behavior in private browsing and storage-restricted environments
+- [ ] Add a published privacy policy and final contact/support details before public launch
 
-## Source and automated checks
-- [x] Native SwiftUI application and iOS 17 deployment target
-- [x] Siri App Intent and Shortcuts phrases
-- [x] Keychain-backed provider API key storage
-- [x] HTTPS-only provider endpoint validation
-- [x] Bounded prompts and in-memory conversation context
-- [x] Adult-style acknowledgement gate, including Siri invocation
-- [x] Provider data-transfer disclosure
-- [x] Initial VoiceOver labels for personality selection and chat messages
-- [x] GitHub Actions simulator build and unit tests
-- [x] Privacy manifest lint step passes in CI after this checklist update
-- [ ] Review every VoiceOver screen with VoiceOver enabled
+## Publishing
+- [ ] Enable GitHub Pages using GitHub Actions as the deployment source, or choose another static host
+- [ ] Confirm the live HTTPS URL and test mobile layout on that URL
+- [ ] Add a custom domain only if desired
+- [ ] Review provider terms, privacy, billing, and API key restrictions
 
-## Apple developer and device validation
-- [ ] Set the final unique bundle identifier in `project.yml` (current development identifier: `com.persona.siripersonality`)
-- [ ] Confirm Apple Developer Program membership and App Store Connect access
-- [ ] Configure signing team, distribution certificate, and provisioning profile in Xcode
-- [ ] Build and install on a physical iPhone running iOS 17 or later
-- [ ] Verify first launch, tab navigation, personality selection, and custom personality editing
-- [ ] Verify provider settings, Keychain save/replace/delete, invalid endpoint handling, network errors, and offline behavior
-- [ ] Verify Siri phrases, Shortcuts discovery, denied permissions/settings, and response handoff on-device
-- [ ] Verify in-app speech, interruption behavior, and system voice settings
-- [ ] Test adult acknowledgement on and off, including Siri requests
-- [ ] Test Dynamic Type, larger accessibility text, VoiceOver order, contrast, and keyboard focus
-- [ ] Test app backgrounding, termination, relaunch, and transcript reset behavior
-
-## App Store materials and compliance
-- [ ] Create final app icon asset catalog and launch appearance
-- [ ] Prepare screenshots for supported device sizes and an accurate app description
-- [ ] Choose final age rating and complete App Store Connect content declarations
-- [ ] Complete App Privacy questionnaire based on actual provider data flows and SDK inventory
-- [ ] Publish a privacy policy explaining that prompts are sent to the user-configured AI provider
-- [ ] Confirm provider terms, data retention, and API-key handling are appropriate for intended distribution
-- [ ] Review Apple's current App Review Guidelines, especially user-generated content, AI content, and adult-language presentation
-- [ ] Decide whether a backend proxy is required; do not ship a shared organization API key in a public client
-- [ ] Archive, validate, upload to TestFlight, and complete external/internal beta testing
-- [ ] Submit for App Review only after all checks above are complete
-
-## Known product limitations
-- Persona does not replace Apple's native Siri voice or personality; it is invoked as an App Intent/Shortcut.
-- Siri requests are one-shot and do not share the in-app chat transcript.
-- The app has no Persona-hosted account, cloud sync, or backend.
-- The optional 18+ switch is an acknowledgement, not age verification, and does not override Apple or provider rules.
-- Simulator CI cannot validate microphone/voice behavior, real Keychain behavior on a user's device, signing, or App Store acceptance.
+## Known limitations
+- A browser app cannot replace or modify Apple's native Siri.
+- Provider browser CORS restrictions may prevent direct API calls; a server-side proxy would then be required.
+- The API key is stored in local browser storage, not a secure vault. This build is intended for personal use/prototyping, not a public multi-user production service.
+- Chat history is in memory only and disappears on reload.
+- The 18+ setting is an acknowledgement, not age verification or a policy override.
+- No paid hosting, backend, Railway resources, or subscription is created by this repository change.
