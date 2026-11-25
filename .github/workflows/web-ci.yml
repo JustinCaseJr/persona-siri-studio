@@ -20,3 +20,5 @@ jobs:
           test -s styles.css
           test -s src/app.js
           test -s src/core.js
+          node --check src/app.js
+          node --check src/core.js
